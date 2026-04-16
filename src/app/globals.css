@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #00C8FF;
+  --color-secondary: #7850FF;
+  --color-base: #03050A;
+  --color-success: #00DC78;
+  --color-warning: #FFA040;
+  
+  --color-surface-1: #060e1e;
+  --color-surface-2: #0a1628;
+  --color-surface-3: #0f1f3a;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #C8D8F0;
+  --color-text-tertiary: #6A8FB5;
+  --color-text-quaternary: #3A5A7A;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui;
+  --font-display: var(--font-orbitron), ui-sans-serif, system-ui;
+  --font-mono: var(--font-share-tech-mono), ui-monospace, SFMono-Regular;
+}
+
+:root {
+  --background: var(--color-base);
+  --foreground: var(--color-text-primary);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.scanline {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,200,255,0.05) 50%, rgba(0,200,255,0.05));
+  background-size: 100% 4px;
+}

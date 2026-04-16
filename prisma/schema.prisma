@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ------------------------------------------------------
+// Auth Config (NextAuth / Auth.js standard fields)
+// ------------------------------------------------------
+
+
+// ------------------------------------------------------
+// Core Domain (EASTDAWN Users & Gamification)
+// ------------------------------------------------------
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  avatarUrl     String?
+  role          Role      @default(LEARNER)
+
+  // Gamification Stats
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+  lastActive    DateTime?
+  totalXp       Int       @default(0)
+  totalStudyMinutes Int   @default(0)
+
+  // Relations
+  courses       Course[]
+  badges        UserBadge[]
+  quizAttempts  QuizAttempt[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  LEARNER
+  ADMIN
+  ENTERPRISE
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String?  @db.Text
+  promptUsed  String   @db.Text
+  domain      String   // e.g., "Web AppSec"
+  level       String   // e.g., "Beginner", "Advanced"
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  modules     Module[]
+  
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Module {
+  id           String   @id @default(cuid())
+  title        String
+  content      String   @db.Text
+  type         ModuleType @default(READING)
+  orderIndex   Int
+  quizData     Json?
+  
+  courseId     String
+  course       Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  quizAttempts QuizAttempt[]
+  
+  isCompleted  Boolean  @default(false)
+}
+
+enum ModuleType {
+  READING
+  LAB
+  QUIZ
+}
+
+// ------------------------------------------------------
+// Analytics & Progress
+// ------------------------------------------------------
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  score     Int      // e.g., 85 for 85%
+  domain    String
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  moduleId  String
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  tier        String   // "BRONZE", "SILVER", "GOLD", "DIAMOND"
+  imageUrl    String?
+  
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  awardedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+}
