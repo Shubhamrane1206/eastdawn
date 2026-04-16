@@ -17,7 +17,7 @@ export default function Home() {
             SYSTEM ONLINE — V1.0.0
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-display font-bold trackig-tight mb-6 text-white uppercase drop-shadow-[0_0_15px_rgba(0,200,255,0.3)]">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-display font-bold tracking-tight mb-6 text-white uppercase drop-shadow-[0_0_15px_rgba(0,200,255,0.3)]">
             Master Any <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Cybersecurity</span> Domain
           </h1>
@@ -119,15 +119,15 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="py-24 px-4 relative z-10">
-        <div className="max-w-4xl mx-auto bg-gradient-to-br from-[var(--color-surface-3)] to-[var(--color-surface-1)] border border-[var(--color-primary)]/20 p-12 rounded-2xl text-center shadow-2xl relative overflow-hidden">
+        <div className="max-w-4xl mx-auto bg-gradient-to-br from-[var(--color-surface-3)] to-[var(--color-surface-1)] border border-[var(--color-primary)]/20 p-6 sm:p-12 rounded-2xl text-center shadow-2xl relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
-          <h2 className="text-4xl font-display font-bold text-white mb-6 relative z-10 uppercase">
+          <h2 className="text-2xl sm:text-4xl font-display font-bold text-white mb-6 relative z-10 uppercase">
              Ready to initiate?
           </h2>
-          <p className="text-xl text-[var(--color-text-secondary)] mb-10 max-w-xl mx-auto relative z-10">
+          <p className="text-lg sm:text-xl text-[var(--color-text-secondary)] mb-10 max-w-xl mx-auto relative z-10">
             Create your first AI-generated training module instantly.
           </p>
-          <Link href="/register" className="inline-block relative z-10 px-10 py-5 text-lg bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] font-display hover:bg-[var(--color-primary)] hover:text-[#03050a] transition-all duration-300 uppercase shadow-[0_0_20px_rgba(0,200,255,0.4)]">
+          <Link href="/register" className="inline-block relative z-10 px-8 sm:px-10 py-4 sm:py-5 text-base sm:text-lg bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] font-display hover:bg-[var(--color-primary)] hover:text-[#03050a] transition-all duration-300 uppercase shadow-[0_0_20px_rgba(0,200,255,0.4)]">
              Boot Sequence
           </Link>
         </div>
