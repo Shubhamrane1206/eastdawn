@@ -9,7 +9,11 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = await cookies()
-    const response = NextResponse.redirect(`${origin}${next}`)
+    
+    // We use the canonical site URL for the final redirect to ensure session persistence
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
+    const redirectUrl = new URL(next, siteUrl).toString()
+    const response = NextResponse.redirect(redirectUrl)
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,9 +24,11 @@ export async function GET(request: Request) {
             return cookieStore.getAll()
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
+            cookiesToSet.forEach(({ name, value, options }) => {
+              // Dual-sync: set on both the live cookie store and the redirect response
+              cookieStore.set(name, value, options)
               response.cookies.set(name, value, options)
-            )
+            })
           },
         },
       }
@@ -35,6 +41,7 @@ export async function GET(request: Request) {
     }
   }
 
-  // Redirect to register with error if exchange fails
-  return NextResponse.redirect(`${origin}/register?error=AuthError`)
+  // Fallback to register with error if exchange fails
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
+  return NextResponse.redirect(`${siteUrl}/register?error=AuthError`)
 }
