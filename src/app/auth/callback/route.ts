@@ -25,9 +25,16 @@ export async function GET(request: Request) {
           },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) => {
+              const extendedOptions = { 
+                ...options, 
+                domain: '.eastdawn.in', 
+                path: '/',
+                sameSite: 'lax' as const,
+                secure: true
+              }
               // Dual-sync: set on both the live cookie store and the redirect response
-              cookieStore.set(name, value, options)
-              response.cookies.set(name, value, options)
+              cookieStore.set(name, value, extendedOptions)
+              response.cookies.set(name, value, extendedOptions)
             })
           },
         },
