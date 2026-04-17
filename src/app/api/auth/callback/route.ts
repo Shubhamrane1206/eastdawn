@@ -12,14 +12,9 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`)
-      } else {
-        // Explicitly redirect to the production dashboard
-        return NextResponse.redirect(`https://www.eastdawn.in${next}`)
-      }
+      // Use the origin from the request to stay on the same domain
+      // This prevents session loss between www and non-www
+      return NextResponse.redirect(`${origin}${next}`)
     }
   }
 

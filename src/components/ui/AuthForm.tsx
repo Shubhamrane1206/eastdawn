@@ -34,11 +34,14 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
     setError(null)
 
     try {
-      const supabase = createClient()
+      const origin = typeof window !== 'undefined' && window.location.origin.includes('localhost') 
+        ? window.location.origin 
+        : 'https://www.eastdawn.in';
+
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
+          redirectTo: `${origin}/api/auth/callback`,
         },
       })
 
