@@ -35,7 +35,7 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
 
     try {
       // Use the canonical site URL if defined, otherwise fallback to window
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.eastdawn.in';
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.eastdawn.in/dashboard';
       const origin = typeof window !== 'undefined' && window.location.origin.includes('localhost')
         ? window.location.origin
         : siteUrl;
@@ -82,9 +82,9 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
             {successMessage}
           </p>
           <div className="mt-6 pt-6 border-t border-[#0f1f3a]">
-             <p className="text-[10px] font-mono text-[#00C8FF]/50 uppercase tracking-[0.2em]">
-               Awaiting neural acknowledgement...
-             </p>
+            <p className="text-[10px] font-mono text-[#00C8FF]/50 uppercase tracking-[0.2em]">
+              Awaiting neural acknowledgement...
+            </p>
           </div>
         </motion.div>
       ) : (
