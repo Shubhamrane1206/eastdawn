@@ -36,10 +36,11 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
     
     try {
       const supabase = createClient()
+      const origin = window.location.origin
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
+          redirectTo: `${origin}/api/auth/callback`,
         },
       })
       
