@@ -56,8 +56,17 @@ export async function signup(formData: FormData) {
     return { error: error.message }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  // If session is present, it means email confirmation is disabled or the user is auto-confirmed
+  if (data?.session) {
+    revalidatePath('/', 'layout')
+    redirect('/dashboard')
+  }
+
+  // Otherwise, return a success message indicating that a verification link has been sent
+  return { 
+    success: true, 
+    message: 'Verification link sent. Access granted upon link acknowledgement in your terminal (email).' 
+  }
 }
 
 
