@@ -1,13 +1,21 @@
 import { AuthForm } from '@/components/ui/AuthForm'
 import { ParticleBackground } from '@/components/ParticleBackground' // From PRD references
-import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export const metadata = {
   title: 'Register | EASTDAWN',
   description: 'Initialize your agent designation and access key.',
 }
 
-export default function RegisterPage() {
+export default async function RegisterPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const searchParams = await props.searchParams;
+
+  // Handle stray auth codes (if Supabase falls back to current page)
+  if (searchParams.code) {
+    redirect(`/auth/callback?code=${searchParams.code}${searchParams.next ? `&next=${searchParams.next}` : ''}`)
+  }
   return (
     <main className="relative min-h-screen bg-[#03050A] flex flex-col justify-center overflow-hidden">
       
