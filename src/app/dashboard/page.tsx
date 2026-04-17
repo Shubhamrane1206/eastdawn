@@ -130,20 +130,18 @@ export default async function Dashboard() {
                  System Generation Node
               </h2>
             </div>
-            <div className="p-6 border border-[var(--color-surface-3)] rounded-xl bg-[var(--color-surface-1)] relative overflow-hidden group">
+            <div className="p-8 border border-[var(--color-surface-3)] rounded-xl bg-[var(--color-surface-1)] relative overflow-hidden group">
                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
-               <p className="text-[var(--color-text-secondary)] mb-4 font-mono text-sm uppercase tracking-wider">Initialize a new procedural learning block.</p>
-               <form action="/generate" method="GET">
-                 <input
-                   name="prompt"
-                   type="text"
-                   placeholder="e.g. Teach me Kubernetes Pod Security Policies..."
-                   className="w-full bg-[var(--color-surface-3)] border border-[var(--color-surface-3)] focus:border-[var(--color-primary)] rounded h-12 px-4 text-white font-mono text-sm placeholder-[var(--color-text-quaternary)] focus:outline-none transition-colors shadow-inner"
-                 />
-                 <button type="submit" className="mt-4 px-6 py-2 bg-[var(--color-primary)] text-[#03050a] text-sm font-bold uppercase rounded hover:bg-[var(--color-success)] transition-colors shadow-[0_0_15px_rgba(0,200,255,0.3)]">
-                   Execute Prompt
-                 </button>
-               </form>
+               <p className="text-[var(--color-text-secondary)] mb-6 font-mono text-sm uppercase tracking-widest leading-relaxed">
+                 Access the core generative matrix to synthesize custom procedural training blocks.
+               </p>
+               <Link 
+                 href="/generate" 
+                 className="inline-flex items-center gap-3 px-8 py-4 bg-[var(--color-primary)] text-[#03050a] text-sm font-display font-bold uppercase rounded-lg hover:bg-[var(--color-success)] transition-all shadow-[0_0_20px_rgba(0,200,255,0.3)] hover:shadow-[0_0_30px_rgba(0,220,120,0.5)] group/btn"
+               >
+                 <Zap className="w-4 h-4 group-hover:animate-pulse" />
+                 INITIATE NEURAL UPLINK
+               </Link>
             </div>
           </section>
 
