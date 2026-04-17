@@ -5,17 +5,11 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/dashboard'
 
   if (code) {
     const cookieStore = await cookies()
-    
-    // We create the response object FIRST so we can explicitly set cookies on it
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
-    // Ensure we have an absolute URL for redirect
-    const redirectUrl = new URL(next, siteUrl).toString()
-    const response = NextResponse.redirect(redirectUrl)
+    const response = NextResponse.redirect(`${origin}${next}`)
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,7 +35,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // return the user to an error page with instructions
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
-  return NextResponse.redirect(`${siteUrl}/register?error=AuthError`)
+  // Redirect to register with error if exchange fails
+  return NextResponse.redirect(`${origin}/register?error=AuthError`)
 }

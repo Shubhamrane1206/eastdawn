@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Mail, User, AlertCircle, Loader2 } from 'lucide-react'
-import { login, signup, signInWithOAuth } from '@/app/auth-actions'
+import { login, signup } from '@/app/auth-actions'
+import { createClient } from '@/utils/supabase/client'
 
 export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' }) {
   const [loading, setLoading] = useState(false)
@@ -32,9 +33,19 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
   const handleOAuth = async (provider: 'github' | 'google') => {
     setOauthLoading(provider)
     setError(null)
-    const result = await signInWithOAuth(provider)
-    if (result?.error) {
-      setError(result.error)
+    
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/api/auth/callback`,
+        },
+      })
+      
+      if (error) throw error
+    } catch (err: any) {
+      setError(err.message || 'OAuth initialization failed')
       setOauthLoading(null)
     }
   }

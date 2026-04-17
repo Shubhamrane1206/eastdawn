@@ -60,34 +60,6 @@ export async function signup(formData: FormData) {
   redirect('/dashboard')
 }
 
-export async function signInWithOAuth(provider: 'google' | 'github') {
-  const supabase = await createClient()
-
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: {
-      redirectTo: `${siteUrl}/api/auth/callback`, 
-      queryParams: provider === 'google' ? {
-        access_type: 'offline',
-        prompt: 'consent',
-      } : undefined,
-    },
-  })
-
-  if (error) {
-    console.error(`OAuth Error (${provider}):`, error.message)
-    return { error: error.message }
-  }
-
-  // Next.js redirect from server action needs string url
-  if (data.url) {
-    return redirect(data.url)
-  }
-  
-  return { error: 'Failed to generate OAuth URL' }
-}
 
 export async function signOut() {
   const supabase = await createClient()
