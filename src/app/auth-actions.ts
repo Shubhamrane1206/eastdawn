@@ -68,7 +68,7 @@ export async function signInWithOAuth(provider: 'google' | 'github') {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${siteUrl}/api/auth/callback?next=/dashboard`, 
+      redirectTo: `${siteUrl}/api/auth/callback`, 
       queryParams: provider === 'google' ? {
         access_type: 'offline',
         prompt: 'consent',

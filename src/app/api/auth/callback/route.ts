@@ -11,8 +11,14 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      const forwardTo = new URL(next, origin)
-      return NextResponse.redirect(forwardTo)
+      const isLocalEnv = process.env.NODE_ENV === 'development'
+      if (isLocalEnv) {
+        return NextResponse.redirect(`${origin}${next}`)
+      } else {
+        // Use the site URL from env for production to be safe
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
+        return NextResponse.redirect(`${siteUrl}${next}`)
+      }
     }
   }
 
