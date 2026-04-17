@@ -51,13 +51,19 @@ export default async function Dashboard() {
   return (
     <div className="flex flex-col min-h-screen px-4 py-24 sm:px-8 max-w-7xl mx-auto w-full">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 border-b border-[var(--color-surface-3)] pb-8">
-        <div>
-          <h1 className="text-4xl font-display font-bold text-white uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,49,49,0.3)]">
-            Command Center
-          </h1>
-          <p className="text-[var(--color-text-secondary)] mt-2 font-mono text-sm max-w-xl text-[var(--color-warning)]">
-            Neural link active. System scan complete. Your global standing is synchronized.
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+             <div className="absolute inset-0 bg-[var(--color-primary)]/10 blur-xl rounded-full" />
+             <img src="/logo.png" alt="" className="w-10 h-10 relative z-10 object-contain drop-shadow-[0_0_10px_rgba(0,200,255,0.4)]" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-display font-bold text-white uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,49,49,0.3)]">
+              Command Center
+            </h1>
+            <p className="text-[var(--color-text-secondary)] mt-2 font-mono text-sm max-w-xl text-[var(--color-warning)]">
+              Neural link active. System scan complete. Your global standing is synchronized.
+            </p>
+          </div>
         </div>
         <div className="mt-6 md:mt-0 flex gap-4">
            <div className="bg-[var(--color-surface-3)] border border-[var(--color-primary)]/20 px-6 py-3 rounded-lg flex items-center gap-3 shadow-[0_0_15px_rgba(0,200,255,0.1)]">
