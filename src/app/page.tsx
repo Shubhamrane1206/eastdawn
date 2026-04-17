@@ -13,7 +13,7 @@ export default async function Home(props: {
 
   // Handle stray auth codes (if Supabase falls back to site URL)
   if (searchParams.code) {
-    redirect(`/api/auth/callback?code=${searchParams.code}${searchParams.next ? `&next=${searchParams.next}` : ''}`)
+    redirect(`/auth/callback?code=${searchParams.code}${searchParams.next ? `&next=${searchParams.next}` : ''}`)
   }
 
   const { data: { user } } = await supabase.auth.getUser()

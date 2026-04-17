@@ -40,7 +40,7 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${origin}/api/auth/callback`,
+          redirectTo: `${origin}/auth/callback`,
         },
       })
       
