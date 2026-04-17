@@ -22,12 +22,12 @@ export async function GlobalNav() {
     <nav className="fixed top-0 inset-x-0 h-14 bg-[var(--color-surface-1)]/80 backdrop-blur-md border-b border-[var(--color-surface-3)] z-50 flex items-center px-6 justify-between transform transition-all">
       <div className="flex items-center gap-6">
         <Link href="/" className="group transition-all duration-300">
-          <div className="relative w-12 h-12 flex items-center justify-center">
+          <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden">
              <div className="absolute inset-0 bg-[var(--color-primary)]/10 blur-xl rounded-full group-hover:bg-[var(--color-primary)]/30 transition-all" />
              <img 
                src="/logo.png" 
                alt="EASTDAWN Logo" 
-               className="w-10 h-10 relative z-10 object-contain brightness-110 contrast-125 mix-blend-screen" 
+               className="w-14 h-14 relative z-10 object-contain scale-150 brightness-110 contrast-125 mix-blend-screen select-none" 
              />
           </div>
         </Link>

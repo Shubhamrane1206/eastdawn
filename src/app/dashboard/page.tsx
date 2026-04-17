@@ -52,9 +52,9 @@ export default async function Dashboard() {
     <div className="flex flex-col min-h-screen px-4 py-24 sm:px-8 max-w-7xl mx-auto w-full">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 border-b border-[var(--color-surface-3)] pb-8">
         <div className="flex items-center gap-4">
-          <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+          <div className="relative w-12 h-12 flex items-center justify-center shrink-0 overflow-hidden">
              <div className="absolute inset-0 bg-[var(--color-primary)]/10 blur-xl rounded-full" />
-             <img src="/logo.png" alt="" className="w-10 h-10 relative z-10 object-contain brightness-125 contrast-125 mix-blend-screen" />
+             <img src="/logo.png" alt="" className="w-16 h-16 relative z-10 object-contain scale-150 brightness-125 contrast-125 mix-blend-screen" />
           </div>
           <div>
             <h1 className="text-4xl font-display font-bold text-white uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,49,49,0.3)]">

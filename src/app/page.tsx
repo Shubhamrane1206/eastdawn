@@ -21,8 +21,8 @@ export default async function Home() {
         <div className="z-10 max-w-5xl mx-auto flex flex-col items-center mt-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-mono text-[var(--color-primary)] border border-[var(--color-primary)]/30 rounded-full bg-[var(--color-primary)]/10 mb-8 backdrop-blur-md relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--color-primary)]/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-            <img src="/logo.png" alt="" className="w-5 h-5 object-contain brightness-125 contrast-150 mix-blend-screen" />
-            SYSTEM ONLINE — V1.0.0
+            <img src="/logo.png" alt="" className="w-8 h-8 object-contain scale-125 brightness-125 contrast-150 mix-blend-screen" />
+            V1.0.0
           </div>
           
           <h1 className="text-3xl sm:text-5xl md:text-7xl font-display font-bold tracking-tight mb-6 text-white uppercase drop-shadow-[0_0_15px_rgba(0,200,255,0.3)]">
