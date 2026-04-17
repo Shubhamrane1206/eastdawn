@@ -1,4 +1,4 @@
-import { Shield, Flame, Target, Trophy, Clock, ArrowRight } from "lucide-react";
+import { Shield, Flame, Target, Trophy, Clock, ArrowRight, Zap } from "lucide-react";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import Link from "next/link";
 import { createClient } from '@/utils/supabase/server'
