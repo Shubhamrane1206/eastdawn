@@ -34,9 +34,11 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
     setError(null)
 
     try {
-      const origin = typeof window !== 'undefined' && window.location.origin.includes('localhost') 
-        ? window.location.origin 
-        : 'https://www.eastdawn.in';
+      // Use the canonical site URL if defined, otherwise fallback to window
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.eastdawn.in';
+      const origin = typeof window !== 'undefined' && window.location.origin.includes('localhost')
+        ? window.location.origin
+        : siteUrl;
 
       const supabase = createClient()
       const { error: authError } = await supabase.auth.signInWithOAuth({

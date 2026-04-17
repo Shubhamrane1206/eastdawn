@@ -1,23 +1,23 @@
 import { NextResponse } from 'next/server'
-// The client you created from the Server-Side Auth instructions
 import { createClient } from '@/utils/supabase/server'
+import { revalidatePath } from 'next/cache'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect URL
-  const next = searchParams.get('next') ?? '/dashboard'
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get('code')
+  const next = requestUrl.searchParams.get('next') ?? '/dashboard'
+  const origin = requestUrl.origin
 
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      // Use the origin from the request to stay on the same domain
-      // This prevents session loss between www and non-www
+      // Revalidate the dashboard to ensure the session is picked up
+      revalidatePath('/dashboard', 'layout')
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
 
-  // return the user to an error page with instructions
+  // Return the user to an error page if code exchange fails
   return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }
