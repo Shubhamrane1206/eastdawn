@@ -1,15 +1,22 @@
 import { Shield, Brain, Zap, Target, BookOpen, Terminal } from "lucide-react";
-import { ParticleBackground } from "@/components/ParticleBackground";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { TextGenerateEffect } from "@/components/TextGenerateEffect";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    redirect('/dashboard')
+  }
+
   return (
-    <main className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 text-center overflow-hidden">
-        <ParticleBackground />
         
         <div className="z-10 max-w-5xl mx-auto flex flex-col items-center mt-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 text-sm font-mono text-[var(--color-primary)] border border-[var(--color-primary)]/30 rounded-full bg-[var(--color-primary)]/10 mb-8 backdrop-blur-md">
@@ -138,6 +145,6 @@ export default function Home() {
          <p>EASTDAWN © 2026 // SYSTEM PROTECTED // AUTHORIZED PERSONNEL ONLY</p>
          <p className="text-[var(--color-primary)] font-bold tracking-widest">DEVELOPED BY OPERATOR: SHUBHAM RANE</p>
       </footer>
-    </main>
+    </div>
   );
 }

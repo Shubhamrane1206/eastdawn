@@ -3,9 +3,9 @@ import Link from "next/link";
 import { db } from '@/lib/db'
 
 export default async function LeaderboardPage() {
-  // Query top 50 users based on totalStudyMinutes
+  // Query top 50 users based on totalXp
   const topUsers = await db.user.findMany({
-    orderBy: { totalStudyMinutes: 'desc' },
+    orderBy: { totalXp: 'desc' },
     take: 50,
     select: {
       id: true,
@@ -23,12 +23,12 @@ export default async function LeaderboardPage() {
     <div className="flex flex-col min-h-screen px-4 py-24 sm:px-8 max-w-5xl mx-auto w-full">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 border-b border-[var(--color-surface-3)] pb-8">
         <div>
-          <h1 className="text-4xl font-display font-bold text-white uppercase tracking-tight drop-shadow-[0_0_15px_rgba(0,200,255,0.3)] flex items-center gap-4">
+          <h1 className="text-4xl font-display font-bold text-white uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,49,49,0.3)] flex items-center gap-4">
             <Trophy className="w-10 h-10 text-[var(--color-warning)]" />
             Global Leaderboard
           </h1>
           <p className="text-[var(--color-text-secondary)] mt-2 font-mono text-sm max-w-xl">
-            Rankings are determined by total active neural training hours. Climb the ranks to prove your mastery.
+            Rankings are determined by total neural XP. Ascend the matrix through active training and module completion.
           </p>
         </div>
       </div>
@@ -41,8 +41,8 @@ export default async function LeaderboardPage() {
                 <th className="px-6 py-4">Rank</th>
                 <th className="px-6 py-4">Operator</th>
                 <th className="px-6 py-4 text-center">Neural Badges</th>
-                <th className="px-6 py-4 text-right">XP</th>
-                <th className="px-6 py-4 text-right text-[var(--color-primary)]">Training Hours</th>
+                <th className="px-6 py-4 text-right text-[var(--color-warning)]">XP</th>
+                <th className="px-6 py-4 text-right">Training Hours</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-surface-3)]/50">
@@ -89,7 +89,7 @@ export default async function LeaderboardPage() {
                          )}
                        </div>
                     </td>
-                    <td className="px-6 py-5 whitespace-nowrap text-right font-mono text-sm text-[var(--color-text-secondary)]">
+                    <td className="px-6 py-5 whitespace-nowrap text-right font-mono text-sm text-[var(--color-warning)] font-bold">
                       {user.totalXp}
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-right">

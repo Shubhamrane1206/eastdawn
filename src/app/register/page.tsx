@@ -10,11 +10,6 @@ export const metadata = {
 export default function RegisterPage() {
   return (
     <main className="relative min-h-screen bg-[#03050A] flex flex-col justify-center overflow-hidden">
-      {/* Particle background for cyberpunk aesthetic */}
-      <div className="absolute inset-0 z-0">
-         {/* Simple fallback in case ParticleBackground isn't working as expected, but it was listed in PRD */}
-         <ParticleBackground className="absolute inset-0 z-0 opacity-40" />
-      </div>
       
       {/* Central glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#00C8FF]/10 blur-[120px] rounded-[100%] pointer-events-none z-0" />

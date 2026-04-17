@@ -18,6 +18,8 @@ const shareTechMono = Share_Tech_Mono({
   subsets: ["latin"],
 });
 
+import { createClient } from '@/utils/supabase/server'
+import { ParticleBackground } from "@/components/ParticleBackground";
 import { GlobalNav } from "@/components/GlobalNav";
 
 export const metadata: Metadata = {
@@ -25,20 +27,26 @@ export const metadata: Metadata = {
   description: "Type a prompt. Master any cybersecurity domain. Live AI-generated learning.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   return (
     <html
       lang="en"
       className={`${inter.variable} ${orbitron.variable} ${shareTechMono.variable} h-full antialiased dark`}
     >
-      <body className="font-sans flex flex-col min-h-screen relative overflow-x-hidden pt-14">
+      <body className="font-sans flex flex-col min-h-screen relative overflow-x-hidden pt-14 bg-[var(--color-base)]">
+        <ParticleBackground isAuth={Boolean(user)} className="fixed inset-0 z-0 opacity-40" />
         <GlobalNav />
         <div className="scanline" />
-        {children}
+        <main className="relative z-10 flex-grow flex flex-col">
+          {children}
+        </main>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export function ParticleBackground({ className }: { className?: string }) {
+export function ParticleBackground({ className, isAuth = false }: { className?: string; isAuth?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -16,6 +16,10 @@ export function ParticleBackground({ className }: { className?: string }) {
     canvas.height = window.innerHeight;
 
     let mouse = { x: -1000, y: -1000 };
+
+    // Define colors based on auth state
+    const particleColor = isAuth ? 'rgba(255, 49, 49, 0.6)' : 'rgba(0, 210, 255, 0.6)';
+    const shadowColor = isAuth ? '#FF3131' : '#00C8FF';
 
     const particles: Array<{
       x: number;
@@ -61,15 +65,14 @@ export function ParticleBackground({ className }: { className?: string }) {
         let isTouched = false;
         let force = 0;
 
-        // Interactive threshold (closer radius for a real 'touch' effect)
+        // Interactive threshold
         if (distanceSq < 150 * 150) {
           isTouched = true;
           const distance = Math.sqrt(distanceSq);
           force = 1 - distance / 150;
           
-          // Repel away from cursor (dx, dy points towards cursor, so we subtract)
           const angle = Math.atan2(dy, dx);
-          const pushDistance = force * 80; // Pushes up to 80px away
+          const pushDistance = force * 80;
           
           renderX -= Math.cos(angle) * pushDistance;
           renderY -= Math.sin(angle) * pushDistance;
@@ -81,20 +84,16 @@ export function ParticleBackground({ className }: { className?: string }) {
         ctx.arc(renderX, renderY, p.baseRadius, 0, Math.PI * 2);
         
         if (isTouched) {
-          // White burst when repelled
           ctx.fillStyle = `rgba(255, 255, 255, ${0.7 + force * 0.3})`;
           ctx.shadowColor = '#FFFFFF';
           ctx.shadowBlur = 25 * glowMultiplier;
         } else {
-          // Standard constant cyan glow
-          ctx.fillStyle = `rgba(0, 210, 255, 0.6)`;
-          ctx.shadowColor = '#00C8FF';
+          ctx.fillStyle = particleColor;
+          ctx.shadowColor = shadowColor;
           ctx.shadowBlur = 10;
         }
         
         ctx.fill();
-        
-        // Reset shadow for performance and next particle
         ctx.shadowBlur = 0;
       });
 
@@ -128,14 +127,12 @@ export function ParticleBackground({ className }: { className?: string }) {
       document.removeEventListener("mouseleave", handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isAuth]);
 
   return (
     <canvas
       ref={canvasRef}
-      // Reverting pointer-events-none completely here is safe because 
-      // we bound mousemove to window. But we do want to avoid blocking clicks underneath.
-      className={`absolute inset-0 z-0 pointer-events-none mix-blend-screen ${className || 'opacity-50'}`}
+      className={`absolute inset-0 z-0 pointer-events-none mix-blend-screen transition-opacity duration-1000 ${className || 'opacity-40'}`}
     />
   );
 }

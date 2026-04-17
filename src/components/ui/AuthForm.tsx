@@ -32,10 +32,9 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
   const handleOAuth = async (provider: 'github' | 'google') => {
     setOauthLoading(provider)
     setError(null)
-    try {
-      await signInWithOAuth(provider)
-    } catch (e: any) {
-      setError(e.message ?? 'OAuth error')
+    const result = await signInWithOAuth(provider)
+    if (result?.error) {
+      setError(result.error)
       setOauthLoading(null)
     }
   }
