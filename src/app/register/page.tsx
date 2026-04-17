@@ -1,5 +1,6 @@
 import { AuthForm } from '@/components/ui/AuthForm'
 import { ParticleBackground } from '@/components/ParticleBackground' // From PRD references
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 export const metadata = {
