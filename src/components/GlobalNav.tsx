@@ -21,15 +21,9 @@ export async function GlobalNav() {
   return (
     <nav className="fixed top-0 inset-x-0 h-14 bg-[var(--color-surface-1)]/80 backdrop-blur-md border-b border-[var(--color-surface-3)] z-50 flex items-center px-6 justify-between transform transition-all">
       <div className="flex items-center gap-6">
-        <Link href="/" className="group transition-all duration-300">
-          <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden">
-             <div className="absolute inset-0 bg-[var(--color-primary)]/10 blur-xl rounded-full group-hover:bg-[var(--color-primary)]/30 transition-all" />
-             <img 
-               src="/logo.png" 
-               alt="EASTDAWN Logo" 
-               className="w-14 h-14 relative z-10 object-contain scale-150 brightness-110 contrast-125 mix-blend-screen select-none" 
-             />
-          </div>
+        <Link href="/" className="flex items-center gap-2 text-white font-display font-bold uppercase tracking-wider text-sm hover:text-[var(--color-primary)] transition-colors">
+          <Shield className="w-4 h-4 text-[var(--color-primary)]" />
+          Eastdawn
         </Link>
         <div className="hidden md:flex items-center gap-4 text-xs font-mono text-[var(--color-text-secondary)] uppercase">
           <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1">
