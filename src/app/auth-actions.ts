@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { db } from '@/lib/db'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -67,7 +68,7 @@ export async function signInWithOAuth(provider: 'google' | 'github') {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${siteUrl}/api/auth/callback`, 
+      redirectTo: `${siteUrl}/api/auth/callback?next=/dashboard`, 
       queryParams: provider === 'google' ? {
         access_type: 'offline',
         prompt: 'consent',
@@ -92,4 +93,24 @@ export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   redirect('/')
+}
+
+export async function markOnboardingComplete() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) return { error: 'Unauthorized' }
+  
+  try {
+    await db.user.update({
+      where: { email: user.email! },
+      data: { onboardingComplete: true }
+    })
+    
+    revalidatePath('/dashboard', 'layout')
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to update onboarding status:', error)
+    return { error: 'Failed to update onboarding status' }
+  }
 }

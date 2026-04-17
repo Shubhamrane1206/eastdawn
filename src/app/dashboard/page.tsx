@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
+import { OnboardingTour } from "@/components/OnboardingTour"
 
 export default async function Dashboard() {
   const supabase = await createClient()
@@ -50,6 +51,7 @@ export default async function Dashboard() {
 
   return (
     <div className="flex flex-col min-h-screen px-4 py-24 sm:px-8 max-w-7xl mx-auto w-full">
+      {!dbUser.onboardingComplete && <OnboardingTour />}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 border-b border-[var(--color-surface-3)] pb-8">
         <div>
           <h1 className="text-4xl font-display font-bold text-white uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,49,49,0.3)]">
