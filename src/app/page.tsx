@@ -5,16 +5,8 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
-export default async function Home(props: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const searchParams = await props.searchParams;
+export default async function Home() {
   const supabase = await createClient()
-
-  // Handle stray auth codes (if Supabase falls back to site URL)
-  if (searchParams.code) {
-    redirect(`/auth/callback?code=${searchParams.code}${searchParams.next ? `&next=${searchParams.next}` : ''}`)
-  }
 
   const { data: { user } } = await supabase.auth.getUser()
 

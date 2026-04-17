@@ -7,15 +7,7 @@ export const metadata = {
   description: 'Authenticate your agent credentials.',
 }
 
-export default async function LoginPage(props: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const searchParams = await props.searchParams;
-
-  // Handle stray auth codes (if Supabase falls back to current page)
-  if (searchParams.code) {
-    redirect(`/auth/callback?code=${searchParams.code}${searchParams.next ? `&next=${searchParams.next}` : ''}`)
-  }
+export default function LoginPage() {
   return (
     <main className="relative min-h-screen bg-[#03050A] flex flex-col justify-center overflow-hidden">
       

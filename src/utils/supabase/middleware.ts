@@ -20,13 +20,7 @@ export async function updateSession(request: NextRequest) {
             request,
           })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, {
-              ...options,
-              domain: '.eastdawn.in',
-              path: '/',
-              sameSite: 'lax' as const,
-              secure: true
-            })
+            supabaseResponse.cookies.set(name, value, options)
           )
         },
       },
@@ -36,7 +30,6 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: Avoid writing any logic between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
-
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -48,12 +41,21 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/api') &&
     request.nextUrl.pathname !== '/'
   ) {
-    // /admin is also caught here — unauthenticated → /login
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
+
+  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
+  // creating a new response object with NextResponse.redirect() make sure to
+  // copy over the cookies, like this:
+  // const response = NextResponse.redirect(url)
+  // response.cookies.set({
+  //   name,
+  //   value,
+  //   ...options,
+  // })
 
   return supabaseResponse
 }

@@ -5,16 +5,11 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  // if "next" is in param, use it as the redirect address
   const next = searchParams.get('next') ?? '/dashboard'
 
   if (code) {
     const cookieStore = await cookies()
-    
-    // We use the canonical site URL for the final redirect to ensure session persistence
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
-    const redirectUrl = new URL(next, siteUrl).toString()
-    const response = NextResponse.redirect(redirectUrl)
-
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -24,31 +19,25 @@ export async function GET(request: Request) {
             return cookieStore.getAll()
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              const extendedOptions = { 
-                ...options, 
-                domain: '.eastdawn.in', 
-                path: '/',
-                sameSite: 'lax' as const,
-                secure: true
-              }
-              // Dual-sync: set on both the live cookie store and the redirect response
-              cookieStore.set(name, value, extendedOptions)
-              response.cookies.set(name, value, extendedOptions)
-            })
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
           },
         },
       }
     )
-
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    
     if (!error) {
-      return response
+      const isLocalEnv = process.env.NODE_ENV === 'development'
+      if (isLocalEnv) {
+        // we can be sure that origin is http://localhost:3000
+        return NextResponse.redirect(`${origin}${next}`)
+      } else {
+        return NextResponse.redirect(`${origin}${next}`)
+      }
     }
   }
 
-  // Fallback to register with error if exchange fails
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
-  return NextResponse.redirect(`${siteUrl}/register?error=AuthError`)
+  // return the user to an error page with instructions
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }
