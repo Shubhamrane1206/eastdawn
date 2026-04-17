@@ -78,7 +78,7 @@ export async function forgotPassword(formData: FormData) {
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.eastdawn.in'}/auth/reset-password`,
+    redirectTo: `https://www.eastdawn.in/auth/reset-password`,
   })
 
   if (error) {
