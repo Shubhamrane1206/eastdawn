@@ -21,14 +21,15 @@ export async function GlobalNav() {
   return (
     <nav className="fixed top-0 inset-x-0 h-14 bg-[var(--color-surface-1)]/80 backdrop-blur-md border-b border-[var(--color-surface-3)] z-50 flex items-center px-6 justify-between transform transition-all">
       <div className="flex items-center gap-6">
-        <Link href="/" className="flex items-center gap-2 group transition-all duration-300">
-          <div className="relative w-8 h-8 flex items-center justify-center">
-             <div className="absolute inset-0 bg-[var(--color-primary)]/20 blur-lg rounded-full group-hover:bg-[var(--color-primary)]/40 transition-all" />
-             <img src="/logo.png" alt="EASTDAWN Logo" className="w-7 h-7 relative z-10 object-contain drop-shadow-[0_0_8px_rgba(0,200,255,0.5)]" />
+        <Link href="/" className="group transition-all duration-300">
+          <div className="relative w-12 h-12 flex items-center justify-center">
+             <div className="absolute inset-0 bg-[var(--color-primary)]/10 blur-xl rounded-full group-hover:bg-[var(--color-primary)]/30 transition-all" />
+             <img 
+               src="/logo.png" 
+               alt="EASTDAWN Logo" 
+               className="w-10 h-10 relative z-10 object-contain brightness-110 contrast-125 mix-blend-screen" 
+             />
           </div>
-          <span className="text-white font-display font-bold uppercase tracking-[0.2em] text-sm group-hover:text-[var(--color-primary)] transition-colors">
-            Eastdawn
-          </span>
         </Link>
         <div className="hidden md:flex items-center gap-4 text-xs font-mono text-[var(--color-text-secondary)] uppercase">
           <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1">

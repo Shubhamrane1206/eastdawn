@@ -54,7 +54,7 @@ export default async function Dashboard() {
         <div className="flex items-center gap-4">
           <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
              <div className="absolute inset-0 bg-[var(--color-primary)]/10 blur-xl rounded-full" />
-             <img src="/logo.png" alt="" className="w-10 h-10 relative z-10 object-contain drop-shadow-[0_0_10px_rgba(0,200,255,0.4)]" />
+             <img src="/logo.png" alt="" className="w-10 h-10 relative z-10 object-contain brightness-125 contrast-125 mix-blend-screen" />
           </div>
           <div>
             <h1 className="text-4xl font-display font-bold text-white uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,49,49,0.3)]">
