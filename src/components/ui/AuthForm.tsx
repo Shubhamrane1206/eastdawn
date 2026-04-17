@@ -38,6 +38,7 @@ export function AuthForm({ mode = 'register' }: { mode?: 'login' | 'register' })
         ? window.location.origin 
         : 'https://www.eastdawn.in';
 
+      const supabase = createClient()
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
