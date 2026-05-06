@@ -254,10 +254,10 @@ export default function CourseReader({ course }: { course: Course }) {
   const [quizResult, setQuizResult] = useState<any>(null)
   
   // Reset state when module changes
-  useState(() => {
+  useEffect(() => {
     setAnswers([])
     setQuizResult(null)
-  })
+  }, [activeIdx])
 
   const activeModule = course.modules[activeIdx]
   const ModuleIcon = MODULE_TYPE_ICON[activeModule.type] ?? BookOpen

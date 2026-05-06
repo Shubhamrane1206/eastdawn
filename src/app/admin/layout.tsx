@@ -9,6 +9,7 @@ import {
   BookOpen,
   ShieldAlert,
   ChevronRight,
+  Target,
 } from 'lucide-react'
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/badges', label: 'Badges', icon: Trophy },
   { href: '/admin/courses', label: 'Courses', icon: BookOpen },
+  { href: '/admin/quiz-attempts', label: 'Quiz Intel', icon: Target },
 ]
 
 export default async function AdminLayout({

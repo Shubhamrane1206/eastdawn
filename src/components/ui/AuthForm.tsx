@@ -1,16 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Mail, User, AlertCircle, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail, User, AlertCircle, Loader2 } from 'lucide-react'
 import { login, signup, forgotPassword } from '@/app/auth-actions'
 import { createClient } from '@/utils/supabase/client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 export function AuthForm({ mode: initialMode = 'register' }: { mode?: 'login' | 'register' | 'reset' }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [mode, setMode] = useState(initialMode)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+
+  // CODE CATCHER: If Supabase redirects here with a code (fallback behavior), 
+  // redirect them to the proper callback handler.
+  useEffect(() => {
+    const code = searchParams.get('code')
+    if (code) {
+      console.log('[AuthForm] Code detected in URL, redirecting to callback handler...')
+      const next = searchParams.get('next') || '/dashboard'
+      router.push(`/api/auth/callback?code=${code}&next=${encodeURIComponent(next)}`)
+    }
+  }, [searchParams, router])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -24,8 +40,13 @@ export function AuthForm({ mode: initialMode = 'register' }: { mode?: 'login' | 
       await forgotPassword(formData)
     ) as { error?: string, success?: boolean, message?: string } | undefined;
 
+    console.log('[AuthForm] Submission Result:', result)
+
     if (result?.error) {
-      setError(result.error)
+      const errorMsg = typeof result.error === 'string' 
+        ? result.error 
+        : (result.error as any).message || JSON.stringify(result.error)
+      setError(errorMsg)
       setLoading(false)
     } else if (result?.success) {
       setSuccessMessage(result.message ?? null)
@@ -103,6 +124,41 @@ export function AuthForm({ mode: initialMode = 'register' }: { mode?: 'login' | 
               </div>
             </div>
 
+            {mode === 'register' && (
+              <>
+                <div className="space-y-1">
+                  <label className="text-xs font-mono text-[#00C8FF]/70 uppercase tracking-wider">
+                    Security Protocol (Question)
+                  </label>
+                  <select
+                    name="securityQuestion"
+                    required
+                    defaultValue=""
+                    className="w-full bg-[#060e1e] border border-[#0f1f3a] rounded p-3 text-white font-sans focus:border-[#00C8FF] focus:outline-none transition-all"
+                  >
+                    <option value="" disabled>Select Neural Challenge...</option>
+                    <option value="What is your favorite superhero?">What is your favorite superhero?</option>
+                    <option value="In what city were you born?">In what city were you born?</option>
+                    <option value="What was your first pet's name?">What was your first pet's name?</option>
+                    <option value="What is your secret operator nickname?">What is your secret operator nickname?</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-mono text-[#00C8FF]/70 uppercase tracking-wider">
+                    Neural Cipher (Answer)
+                  </label>
+                  <input
+                    type="text"
+                    name="securityAnswer"
+                    required
+                    className="w-full bg-[#060e1e] border border-[#0f1f3a] rounded p-3 text-white font-sans focus:border-[#00C8FF] focus:outline-none transition-all placeholder-[#3A5A7A]"
+                    placeholder="Provide your secret answer..."
+                  />
+                </div>
+              </>
+            )}
+
             {mode !== 'reset' && (
               <div className="space-y-1">
                 <label className="text-xs font-mono text-[#00C8FF]/70 uppercase tracking-wider">
@@ -111,22 +167,28 @@ export function AuthForm({ mode: initialMode = 'register' }: { mode?: 'login' | 
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6A8FB5] group-focus-within:text-[#00C8FF] transition-colors" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     name="password"
                     required
-                    className="w-full bg-[#060e1e] border border-[#0f1f3a] rounded p-3 pl-10 text-white font-sans focus:border-[#00C8FF] focus:ring-1 focus:ring-[#00C8FF] focus:outline-none transition-all placeholder-[#3A5A7A]"
+                    className="w-full bg-[#060e1e] border border-[#0f1f3a] rounded p-3 pl-10 pr-12 text-white font-sans focus:border-[#00C8FF] focus:ring-1 focus:ring-[#00C8FF] focus:outline-none transition-all placeholder-[#3A5A7A]"
                     placeholder="Requires high entropy..."
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#3A5A7A] hover:text-[#00C8FF] transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
                 {mode === 'login' && (
                   <div className="text-right">
-                    <button
-                      type="button"
-                      onClick={() => setMode('reset')}
+                    <Link
+                      href="/auth/security-reset"
                       className="text-[10px] font-mono text-[#6A8FB5] hover:text-[#00C8FF] transition-colors uppercase"
                     >
-                      Forgot Access Key?
-                    </button>
+                      Neural Override (Forgot Password?)
+                    </Link>
                   </div>
                 )}
               </div>

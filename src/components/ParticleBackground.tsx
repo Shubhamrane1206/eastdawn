@@ -15,7 +15,7 @@ export function ParticleBackground({ className, isAuth = false }: { className?: 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let mouse = { x: -1000, y: -1000 };
+    const mouse = { x: -1000, y: -1000 };
 
     // Define colors based on auth state
     const particleColor = isAuth ? 'rgba(255, 49, 49, 0.6)' : 'rgba(0, 210, 255, 0.6)';

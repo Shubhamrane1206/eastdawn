@@ -36,6 +36,11 @@ model User {
   quizAttempts  QuizAttempt[]
 
   onboardingComplete Boolean @default(false)
+  
+  // Security Clearance (Neural Override)
+  securityQuestion String?
+  securityAnswer   String?
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }

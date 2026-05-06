@@ -1,8 +1,10 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { db } from '@/lib/db'
 
 export async function login(formData: FormData) {
@@ -31,41 +33,60 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient()
+  try {
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const name = formData.get('name') as string
+    const securityQuestion = formData.get('securityQuestion') as string
+    const securityAnswer = formData.get('securityAnswer') as string
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const name = formData.get('name') as string
+    if (!email || !password) {
+      return { error: 'Email and password are required' }
+    }
 
-  if (!email || !password) {
-    return { error: 'Email and password are required' }
-  }
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
+    // Use Admin Client to bypass rate limits and auto-confirm
+    const adminClient = await createAdminClient()
+    
+    const { data: { user }, error: createError } = await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Auto-confirm the user
+      user_metadata: {
         name: name || '',
-      },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/api/auth/callback`,
-    },
-  })
+        security_question: securityQuestion || '',
+        security_answer: securityAnswer?.toLowerCase().trim() || '',
+      }
+    })
 
-  if (error) {
-    return { error: error.message }
-  }
+    if (createError) {
+      // Handle "User already exists" or other errors
+      if (createError.message.includes('already registered')) {
+        return { error: 'Identity already exists in the matrix. Try logging in.' }
+      }
+      return { error: createError.message }
+    }
 
-  // If session is present, it means email confirmation is disabled or the user is auto-confirmed
-  if (data?.session) {
+    // Since we used Admin API, the user is created but NOT signed in on the client side.
+    // We now perform a standard login to establish the session.
+    const supabase = await createClient()
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (loginError) {
+      return { error: 'Account created, but automatic handshake failed. Please login manually.' }
+    }
+
     revalidatePath('/', 'layout')
     redirect('/dashboard')
-  }
 
-  // Otherwise, return a success message indicating that a verification link has been sent
-  return { 
-    success: true, 
-    message: 'Verification link sent. Access granted upon link acknowledgement in your terminal (email).' 
+  } catch (error: any) {
+    if (error.digest?.startsWith('NEXT_REDIRECT')) {
+      throw error
+    }
+    console.error('[Signup Override] Error:', error)
+    return { error: error.message || 'Neural link initialization failed.' }
   }
 }
 
@@ -77,8 +98,14 @@ export async function forgotPassword(formData: FormData) {
     return { error: 'Email is required' }
   }
 
+  const headerList = await headers()
+  const host = headerList.get('host') || 'localhost:3000'
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  // Prioritize current host to ensure we stay in the same environment (dev vs prod)
+  const siteUrl = `${protocol}://${host}`
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `https://www.eastdawn.in/auth/reset-password`,
+    redirectTo: `${siteUrl}/api/auth/callback?next=${encodeURIComponent('/auth/reset-password')}`,
   })
 
   if (error) {
@@ -111,6 +138,74 @@ export async function updatePassword(formData: FormData) {
   redirect('/login?message=Password updated successfully. Authenticate with your new key.')
 }
 
+
+
+export async function getSecurityQuestion(email: string) {
+  try {
+    const user = await db.user.findUnique({
+      where: { email },
+      select: { securityQuestion: true }
+    })
+
+    if (!user || !user.securityQuestion) {
+      return { error: 'No security protocol found for this identity.' }
+    }
+
+    return { question: user.securityQuestion }
+  } catch (error) {
+    return { error: 'Database handshake failed.' }
+  }
+}
+
+export async function resetPasswordWithSecurityAnswer(formData: FormData) {
+  const email = formData.get('email') as string
+  const answer = formData.get('answer') as string
+  const newPassword = formData.get('newPassword') as string
+
+  if (!email || !answer || !newPassword) {
+    return { error: 'All neural parameters are required.' }
+  }
+
+  try {
+    const user = await db.user.findUnique({
+      where: { email },
+      select: { id: true, securityAnswer: true }
+    })
+
+    if (!user || !user.securityAnswer) {
+      return { error: 'Identity not recognized.' }
+    }
+
+    if (user.securityAnswer !== answer.toLowerCase().trim()) {
+      return { error: 'Neural cipher mismatch. Access denied.' }
+    }
+
+    // Correct answer! Use Admin API to update password
+    const adminClient = await createAdminClient()
+    
+    // Get the Supabase user ID by email
+    const { data: { users }, error: listError } = await adminClient.auth.admin.listUsers()
+    const supabaseUser = users.find(u => u.email === email)
+    
+    if (listError || !supabaseUser) {
+      return { error: 'Core auth link failed.' }
+    }
+
+    const { error: updateError } = await adminClient.auth.admin.updateUserById(
+      supabaseUser.id,
+      { password: newPassword }
+    )
+
+    if (updateError) {
+      return { error: updateError.message }
+    }
+
+    return { success: true, message: 'Neural link recalibrated. Authenticate with your new key.' }
+  } catch (error) {
+    console.error('Reset error:', error)
+    return { error: 'System error during override.' }
+  }
+}
 
 export async function signOut() {
   const supabase = await createClient()

@@ -104,7 +104,7 @@ export default async function LibraryPage() {
                       style={{ color, backgroundColor: `${color}15` }}
                     >
                       <Shield className="w-3 h-3" />
-                      {course.domain} // {course.level}
+                      {course.domain} • {course.level}
                     </span>
                     <h3 className="text-lg font-display font-bold text-white group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 uppercase leading-snug">
                       {course.title}

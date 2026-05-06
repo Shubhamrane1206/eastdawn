@@ -1,6 +1,9 @@
 import Link from 'next/link'
 
-export default function AuthCodeError() {
+export default async function AuthCodeError({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error } = await searchParams
+  const errorMsg = error || 'The security handshake could not be completed.'
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#03050A] text-white p-6">
       <div className="max-w-md w-full bg-[#0a1628] border border-red-500/50 rounded-lg p-8 text-center shadow-[0_0_30px_rgba(239,68,68,0.1)]">
@@ -8,7 +11,9 @@ export default function AuthCodeError() {
           Authentication Error
         </h1>
         <p className="text-[#6A8FB5] font-mono text-sm mb-8 leading-relaxed">
-          The security handshake could not be completed. Your authentication code may be expired or already used.
+          {errorMsg}
+          <br /><br />
+          Your authentication code may be expired or already used, or you may be using a different browser.
         </p>
         <Link 
           href="/login" 

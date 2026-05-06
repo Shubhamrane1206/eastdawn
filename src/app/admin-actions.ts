@@ -136,3 +136,65 @@ export async function deleteCourse(id: string) {
   await db.course.delete({ where: { id } })
   revalidatePath('/admin/courses')
 }
+
+// ─── Quiz Attempts ────────────────────────────────────────────────────────────
+
+export async function getQuizAttempts() {
+  await requireAdmin()
+  return db.quizAttempt.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: { select: { name: true, email: true } },
+      module: { select: { title: true, course: { select: { title: true } } } },
+    },
+    take: 200,
+  })
+}
+
+export async function getQuizStats() {
+  await requireAdmin()
+  const [total, avgResult, topDomain] = await Promise.all([
+    db.quizAttempt.count(),
+    db.quizAttempt.aggregate({ _avg: { score: true } }),
+    db.quizAttempt.groupBy({
+      by: ['domain'],
+      _count: { domain: true },
+      orderBy: { _count: { domain: 'desc' } },
+      take: 1,
+    }),
+  ])
+
+  return {
+    total,
+    avgScore: Math.round(avgResult._avg.score ?? 0),
+    topDomain: topDomain[0]?.domain ?? 'N/A',
+  }
+}
+
+// ─── Create / Delete Badge ────────────────────────────────────────────────────
+
+export async function createBadge(formData: FormData) {
+  await requireAdmin()
+  const name = formData.get('name') as string
+  const description = formData.get('description') as string
+  const tier = formData.get('tier') as string
+  const imageUrl = formData.get('imageUrl') as string
+
+  if (!name || !description || !tier) {
+    return { error: 'All fields required.' }
+  }
+
+  try {
+    await db.badge.create({ data: { name, description, tier, imageUrl: imageUrl || null } })
+    revalidatePath('/admin/badges')
+    return { success: true }
+  } catch (e: any) {
+    return { error: e.message || 'Failed to create badge.' }
+  }
+}
+
+export async function deleteBadge(id: string) {
+  await requireAdmin()
+  await db.badge.delete({ where: { id } })
+  revalidatePath('/admin/badges')
+}

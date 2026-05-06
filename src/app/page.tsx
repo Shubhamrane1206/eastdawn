@@ -101,7 +101,7 @@ export default async function Home() {
                 <Terminal className="w-8 h-8 text-[var(--color-primary)]" />
               </div>
               <h4 className="font-display font-bold text-lg text-white mb-2">1. Enter Command</h4>
-              <p className="text-[var(--color-text-tertiary)] text-sm">"Teach me web application pentesting as a junior dev."</p>
+              <p className="text-[var(--color-text-tertiary)] text-sm">&quot;Teach me web application pentesting as a junior dev.&quot;</p>
             </div>
             
             <div className="relative p-8">
@@ -143,7 +143,7 @@ export default async function Home() {
       
       {/* Footer */}
       <footer className="py-8 border-t border-[var(--color-surface-3)] bg-[#03050a] text-center text-[var(--color-text-quaternary)] font-mono text-xs flex flex-col items-center gap-4 relative z-10">
-         <p>EASTDAWN © 2026 // SYSTEM PROTECTED // AUTHORIZED PERSONNEL ONLY</p>
+         <p>EASTDAWN © 2026 • SYSTEM PROTECTED • AUTHORIZED PERSONNEL ONLY</p>
          <p className="text-[var(--color-primary)] font-bold tracking-widest">DEVELOPED BY OPERATOR: SHUBHAM RANE</p>
       </footer>
     </div>

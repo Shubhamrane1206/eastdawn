@@ -2,6 +2,7 @@ import { AuthForm } from '@/components/ui/AuthForm'
 import { ParticleBackground } from '@/components/ParticleBackground'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 export const metadata = {
   title: 'Login | EASTDAWN',
@@ -44,7 +45,9 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <AuthForm mode="login" />
+          <Suspense fallback={<div className="h-40 flex items-center justify-center text-[#6A8FB5] font-mono">Initializing handshake...</div>}>
+            <AuthForm mode="login" />
+          </Suspense>
 
           <div className="mt-8 text-center text-sm font-sans text-[#6A8FB5]">
             Need clearance?{' '}

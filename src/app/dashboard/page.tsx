@@ -14,8 +14,16 @@ export default async function Dashboard() {
 
   const dbUser = await db.user.upsert({
     where: { email: user.email! },
-    update: {},
-    create: { email: user.email!, name: user.user_metadata?.name || '' },
+    update: {
+      securityQuestion: user.user_metadata?.security_question,
+      securityAnswer: user.user_metadata?.security_answer,
+    },
+    create: { 
+      email: user.email!, 
+      name: user.user_metadata?.name || '',
+      securityQuestion: user.user_metadata?.security_question,
+      securityAnswer: user.user_metadata?.security_answer,
+    },
   })
 
   // Fetch their most recent course

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { awardBadgeToUser } from '@/app/admin-actions'
-import { Trophy, Gift, Users } from 'lucide-react'
+import { awardBadgeToUser, createBadge, deleteBadge } from '@/app/admin-actions'
+import { Trophy, Gift, Users, Plus, Trash2, X, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Role } from '@prisma/client'
 
 type Badge = {
@@ -10,6 +10,7 @@ type Badge = {
   name: string
   description: string
   tier: string
+  imageUrl?: string | null
   _count: { users: number }
 }
 
@@ -31,12 +32,19 @@ const TIER_STYLES: Record<string, { color: string; bg: string; border: string }>
   DIAMOND: { color: '#B9F2FF', bg: 'rgba(185,242,255,0.08)', border: 'rgba(185,242,255,0.25)' },
 }
 
-export default function BadgesClient({ badges, users }: { badges: Badge[]; users: User[] }) {
+export default function BadgesClient({ badges: initialBadges, users }: { badges: Badge[]; users: User[] }) {
+  const [badges, setBadges] = useState(initialBadges)
   const [awardModal, setAwardModal] = useState<Badge | null>(null)
+  const [createModal, setCreateModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState('')
   const [userSearch, setUserSearch] = useState('')
   const [isPending, startTransition] = useTransition()
   const [successMsg, setSuccessMsg] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+
+  // Create form state
+  const [createForm, setCreateForm] = useState({ name: '', description: '', tier: 'BRONZE', imageUrl: '' })
 
   const filteredUsers = users.filter(
     (u) =>
@@ -49,7 +57,7 @@ export default function BadgesClient({ badges, users }: { badges: Badge[]; users
     if (!awardModal || !selectedUser) return
     startTransition(async () => {
       await awardBadgeToUser(selectedUser, awardModal.id)
-      setSuccessMsg(`Badge awarded successfully!`)
+      setSuccessMsg('Badge awarded successfully!')
       setTimeout(() => {
         setAwardModal(null)
         setSelectedUser('')
@@ -59,8 +67,53 @@ export default function BadgesClient({ badges, users }: { badges: Badge[]; users
     })
   }
 
+  const handleCreate = () => {
+    const fd = new FormData()
+    fd.append('name', createForm.name)
+    fd.append('description', createForm.description)
+    fd.append('tier', createForm.tier)
+    fd.append('imageUrl', createForm.imageUrl)
+    startTransition(async () => {
+      const result = await createBadge(fd)
+      if (result?.error) {
+        setErrorMsg(result.error)
+      } else {
+        setSuccessMsg('Badge created!')
+        setCreateModal(false)
+        setCreateForm({ name: '', description: '', tier: 'BRONZE', imageUrl: '' })
+        setTimeout(() => setSuccessMsg(''), 2000)
+      }
+    })
+  }
+
+  const handleDelete = (id: string) => {
+    startTransition(async () => {
+      await deleteBadge(id)
+      setBadges(prev => prev.filter(b => b.id !== id))
+      setConfirmDelete(null)
+    })
+  }
+
   return (
     <>
+      {/* Global Messages */}
+      {successMsg && (
+        <div className="fixed top-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 font-mono text-sm shadow-lg">
+          <CheckCircle2 className="w-4 h-4" /> {successMsg}
+        </div>
+      )}
+
+      {/* Header with Create button */}
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-xs font-mono text-[var(--color-text-quaternary)]">{badges.length} badges in system</p>
+        <button
+          onClick={() => { setCreateModal(true); setErrorMsg('') }}
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-[#03050a] font-mono font-bold text-xs uppercase rounded-lg hover:bg-[var(--color-success)] transition-colors"
+        >
+          <Plus className="w-4 h-4" /> Create Badge
+        </button>
+      </div>
+
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {badges.map((badge) => {
@@ -78,16 +131,28 @@ export default function BadgesClient({ badges, users }: { badges: Badge[]; users
                 >
                   <Trophy className="w-5 h-5" style={{ color: style.color }} />
                 </div>
-                <div className="flex items-center gap-1 text-[10px] font-mono text-[var(--color-text-quaternary)]">
-                  <Users className="w-3 h-3" />
-                  {badge._count.users}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 text-[10px] font-mono text-[var(--color-text-quaternary)]">
+                    <Users className="w-3 h-3" />
+                    {badge._count.users}
+                  </div>
+                  {confirmDelete === badge.id ? (
+                    <div className="flex gap-1">
+                      <button onClick={() => handleDelete(badge.id)} disabled={isPending} className="text-[9px] font-mono text-red-400 hover:underline uppercase">Confirm</button>
+                      <button onClick={() => setConfirmDelete(null)} className="text-[9px] font-mono text-[var(--color-text-quaternary)] hover:underline uppercase">Cancel</button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDelete(badge.id)}
+                      className="p-1 rounded hover:bg-red-500/10 text-[var(--color-text-quaternary)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <p
-                className="text-[10px] font-mono font-bold uppercase tracking-widest mb-1"
-                style={{ color: style.color }}
-              >
+              <p className="text-[10px] font-mono font-bold uppercase tracking-widest mb-1" style={{ color: style.color }}>
                 {badge.tier}
               </p>
               <p className="font-mono text-sm text-white font-bold">{badge.name}</p>
@@ -96,29 +161,116 @@ export default function BadgesClient({ badges, users }: { badges: Badge[]; users
               </p>
 
               <button
-                id={`award-badge-${badge.id}`}
                 onClick={() => { setAwardModal(badge); setSelectedUser(''); setUserSearch('') }}
                 className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-mono uppercase border transition-all duration-200 hover:opacity-100 opacity-60 group-hover:opacity-100"
                 style={{ borderColor: style.border, color: style.color }}
               >
-                <Gift className="w-3 h-3" />
-                Award to Operator
+                <Gift className="w-3 h-3" /> Award to Operator
               </button>
             </div>
           )
         })}
       </div>
 
+      {/* Create Badge Modal */}
+      {createModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[var(--color-surface-1)] border border-[var(--color-surface-3)] rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Plus className="w-5 h-5 text-[var(--color-primary)]" />
+                <p className="font-display text-sm font-bold text-white uppercase">Create New Badge</p>
+              </div>
+              <button onClick={() => setCreateModal(false)} className="text-[var(--color-text-quaternary)] hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {errorMsg && (
+              <div className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono">
+                <AlertCircle className="w-4 h-4 shrink-0" /> {errorMsg}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-mono text-[var(--color-text-quaternary)] uppercase tracking-widest mb-1.5">Badge Name</label>
+                <input
+                  type="text"
+                  value={createForm.name}
+                  onChange={e => setCreateForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="e.g. Recon Master"
+                  className="w-full bg-[var(--color-surface-3)] border border-[var(--color-surface-3)] focus:border-[var(--color-primary)] rounded-lg px-4 py-2.5 text-sm font-mono text-white placeholder-[var(--color-text-quaternary)] focus:outline-none transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono text-[var(--color-text-quaternary)] uppercase tracking-widest mb-1.5">Description</label>
+                <textarea
+                  value={createForm.description}
+                  onChange={e => setCreateForm(f => ({ ...f, description: e.target.value }))}
+                  placeholder="Award criteria..."
+                  rows={2}
+                  className="w-full bg-[var(--color-surface-3)] border border-[var(--color-surface-3)] focus:border-[var(--color-primary)] rounded-lg px-4 py-2.5 text-sm font-mono text-white placeholder-[var(--color-text-quaternary)] focus:outline-none transition-colors resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono text-[var(--color-text-quaternary)] uppercase tracking-widest mb-1.5">Tier</label>
+                <select
+                  value={createForm.tier}
+                  onChange={e => setCreateForm(f => ({ ...f, tier: e.target.value }))}
+                  className="w-full bg-[var(--color-surface-3)] border border-[var(--color-surface-3)] focus:border-[var(--color-primary)] rounded-lg px-4 py-2.5 text-sm font-mono text-white focus:outline-none transition-colors"
+                >
+                  {['BRONZE', 'SILVER', 'GOLD', 'DIAMOND'].map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono text-[var(--color-text-quaternary)] uppercase tracking-widest mb-1.5">Image URL (Optional)</label>
+                <input
+                  type="text"
+                  value={createForm.imageUrl}
+                  onChange={e => setCreateForm(f => ({ ...f, imageUrl: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full bg-[var(--color-surface-3)] border border-[var(--color-surface-3)] focus:border-[var(--color-primary)] rounded-lg px-4 py-2.5 text-sm font-mono text-white placeholder-[var(--color-text-quaternary)] focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleCreate}
+                disabled={!createForm.name || !createForm.description || isPending}
+                className="flex-1 py-2.5 bg-[var(--color-primary)] text-[#03050a] font-mono font-bold text-sm uppercase rounded-lg hover:bg-[var(--color-success)] transition-colors disabled:opacity-40"
+              >
+                {isPending ? 'Creating...' : 'Create Badge'}
+              </button>
+              <button
+                onClick={() => setCreateModal(false)}
+                className="flex-1 py-2.5 border border-[var(--color-surface-3)] text-[var(--color-text-secondary)] font-mono text-sm uppercase rounded-lg hover:border-[var(--color-text-secondary)] transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Award Modal */}
       {awardModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-md bg-[var(--color-surface-1)] border border-[var(--color-surface-3)] rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <Trophy className="w-5 h-5 text-yellow-400" />
-              <div>
-                <p className="text-xs font-mono text-[var(--color-text-quaternary)] uppercase">Awarding</p>
-                <p className="font-display text-sm font-bold text-white uppercase">{awardModal.name}</p>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Trophy className="w-5 h-5 text-yellow-400" />
+                <div>
+                  <p className="text-xs font-mono text-[var(--color-text-quaternary)] uppercase">Awarding</p>
+                  <p className="font-display text-sm font-bold text-white uppercase">{awardModal.name}</p>
+                </div>
               </div>
+              <button onClick={() => setAwardModal(null)} className="text-[var(--color-text-quaternary)] hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             {successMsg ? (
@@ -130,7 +282,6 @@ export default function BadgesClient({ badges, users }: { badges: Badge[]; users
                     Search Operator
                   </label>
                   <input
-                    id="badge-user-search"
                     type="text"
                     placeholder="Name or email..."
                     value={userSearch}
@@ -143,7 +294,6 @@ export default function BadgesClient({ badges, users }: { badges: Badge[]; users
                   {filteredUsers.slice(0, 10).map((u) => (
                     <button
                       key={u.id}
-                      id={`select-user-${u.id}`}
                       onClick={() => setSelectedUser(u.id)}
                       className={`w-full text-left px-4 py-2.5 rounded-lg border font-mono text-sm transition-all duration-150 ${
                         selectedUser === u.id
@@ -164,7 +314,6 @@ export default function BadgesClient({ badges, users }: { badges: Badge[]; users
 
                 <div className="flex gap-3">
                   <button
-                    id="award-confirm-btn"
                     onClick={handleAward}
                     disabled={!selectedUser || isPending}
                     className="flex-1 py-2.5 bg-[var(--color-primary)] text-[#03050a] font-mono font-bold text-sm uppercase rounded-lg hover:bg-[var(--color-success)] transition-colors disabled:opacity-40"
@@ -172,7 +321,6 @@ export default function BadgesClient({ badges, users }: { badges: Badge[]; users
                     {isPending ? 'Awarding...' : 'Award Badge'}
                   </button>
                   <button
-                    id="award-cancel-btn"
                     onClick={() => setAwardModal(null)}
                     className="flex-1 py-2.5 border border-[var(--color-surface-3)] text-[var(--color-text-secondary)] font-mono text-sm uppercase rounded-lg hover:border-[var(--color-text-secondary)] transition-colors"
                   >

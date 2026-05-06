@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/db'
-import { Shield, Settings, LogOut, Award, Terminal } from 'lucide-react'
+import { Shield, Settings, LogOut, Award, Terminal, ShieldAlert } from 'lucide-react'
 import { signOut } from '@/app/auth-actions'
 
 export async function GlobalNav() {
@@ -9,14 +9,15 @@ export async function GlobalNav() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return null // Only show nav for logged-in users, or we could show a public version
+    return null
   }
 
-  // Fetch dbUser to get avatar and points
   const dbUser = await db.user.findUnique({
     where: { email: user.email! },
-    select: { name: true, avatarUrl: true, totalXp: true }
+    select: { name: true, avatarUrl: true, totalXp: true, role: true }
   })
+
+  const isAdmin = dbUser?.role === 'ADMIN'
 
   return (
     <nav className="fixed top-0 inset-x-0 h-14 bg-[var(--color-surface-1)]/80 backdrop-blur-md border-b border-[var(--color-surface-3)] z-50 flex items-center px-6 justify-between transform transition-all">
@@ -32,6 +33,14 @@ export async function GlobalNav() {
           <Link href="/leaderboard" className="hover:text-white transition-colors flex items-center gap-1">
             <Award className="w-3.5 h-3.5" /> Leaderboard
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50 transition-all"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" /> Master Control
+            </Link>
+          )}
         </div>
       </div>
 
