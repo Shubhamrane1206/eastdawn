@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import Link from 'next/link'
 import {
