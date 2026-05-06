@@ -86,6 +86,9 @@ export async function signup(formData: FormData) {
       throw error
     }
     console.error('[Signup Override] Error:', error)
+    if (error.message?.includes('Missing Supabase Admin configuration')) {
+      return { error: 'Neural link failed: Missing Supabase Admin Key. If you just added it to Vercel, please trigger a redeploy for it to take effect.' }
+    }
     return { error: error.message || 'Neural link initialization failed.' }
   }
 }
